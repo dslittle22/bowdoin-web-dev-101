@@ -92,9 +92,6 @@ const initialThings = [
 ];
 
 const App = () => {
-  useEffect(() => {
-    console.log("hey");
-  }, []);
   const [things, setThings] = useState<Thing[]>(initialThings);
   const fetchedThings = useFetchThings();
 
