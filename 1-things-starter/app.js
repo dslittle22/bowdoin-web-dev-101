@@ -1,3 +1,7 @@
+const thingUrl = "https://random-word-api.herokuapp.com/word?number=1";
+const numUrl =
+  "https://www.random.org/integers/?num=1&min=1&max=256&format=plain&col=1&base=10";
+
 function makeTableHeading(table, headings) {
   const headingRow = document.createElement("tr");
   headings.forEach((headingText) => {
@@ -8,22 +12,22 @@ function makeTableHeading(table, headings) {
   table.appendChild(headingRow);
 }
 
-const addRow = (table, item) => {
+function addRow(table, thing) {
   const row = document.createElement("tr");
-  const { name, weight } = item;
-  [name, weight].forEach((property) => {
+  const { name, weight, color } = thing;
+  [name, weight, color].forEach((property) => {
     const td = document.createElement("td");
     td.appendChild(document.createTextNode(property));
     row.appendChild(td);
   });
   table.appendChild(row);
-};
+}
 
-const headphones = { name: "headphones", weight: 523 };
-const lamp = { name: "lamp", weight: 1092 };
+const headphones = { name: "headphones", weight: 523, color: "gray" };
+const lamp = { name: "lamp", weight: 1092, color: "blue" };
 const bed = { name: "bed", weight: 102390 };
 
-let things = [headphones, lamp];
+let things = [headphones, lamp, bed];
 const thingsDiv = document.getElementsByClassName("things-table")[0];
 const thingsTable = document.createElement("table");
 thingsDiv.appendChild(thingsTable);

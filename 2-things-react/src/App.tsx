@@ -1,24 +1,20 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
-type Item = { name: string; weight: number; color: string };
+const thingUrl = "https://random-word-api.herokuapp.com/word?number=1";
+const numUrl =
+  "https://www.random.org/integers/?num=1&min=1&max=256&format=plain&col=1&base=10";
 
-const TR = styled.tr<{ itemColor: string }>`
+type Thing = { name: string; weight: number; color: string };
+
+const TR = styled.tr<{ thingColor: string }>`
   transition: background-color 200ms;
   &:hover {
-    background-color: ${(props) => props.itemColor || "transparent"};
+    background-color: ${(props) => props.thingColor || "transparent"};
   }
 `;
 
-const TableRow = ({ item }: { item: Item }) => (
-  <TR itemColor={item.color}>
-    <td>{item.name}</td>
-    <td>{item.weight}</td>
-    <td>{item.color}</td>
-  </TR>
-);
-
-const AddItemForm = ({ onAdd }: { onAdd: (item: Item) => void }) => {
+const AddThingForm = ({ onAdd }: { onAdd: (thing: Thing) => void }) => {
   const [name, setName] = useState("");
   const [weight, setWeight] = useState("");
   const [color, setColor] = useState("");
@@ -52,18 +48,14 @@ const AddItemForm = ({ onAdd }: { onAdd: (item: Item) => void }) => {
         placeholder="Color"
         required
       />
-      <button type="submit">Add Item</button>
+      <button type="submit">Add Thing</button>
     </form>
   );
 };
 
-const fetchRandomItem = async (): Promise<Item> => {
-  const itemUrl = "https://random-word-api.herokuapp.com/word?number=1";
-  const numUrl =
-    "https://www.random.org/integers/?num=1&min=1&max=256&format=plain&col=1&base=10";
-
-  const [item, weight, r, g, b] = await Promise.all([
-    fetch(itemUrl).then((res) => res.json()),
+const fetchRandomThing = async (): Promise<Thing> => {
+  const [thing, weight, r, g, b] = await Promise.all([
+    fetch(thingUrl).then((res) => res.json()),
     fetch(numUrl).then((res) => res.text()),
     fetch(numUrl).then((res) => res.text()),
     fetch(numUrl).then((res) => res.text()),
@@ -71,38 +63,43 @@ const fetchRandomItem = async (): Promise<Item> => {
   ]);
 
   return {
-    name: item[0],
+    name: thing[0],
     weight: parseInt(weight),
     color: `rgb(${parseInt(r) - 1}, ${parseInt(g) - 1}, ${parseInt(b) - 1})`,
   };
 };
 
-function useFetchItems() {
+function useFetchThings() {
   const hasFetchedRef = useRef(false);
-  const [fetchedItems, setFetchedItems] = useState<Item[]>([]);
+  const [fetchedThings, setFetchedThings] = useState<Thing[]>([]);
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
     hasFetchedRef.current = true;
-    const addRandomItems = async () => {
+    const addRandomThings = async () => {
       for (let i = 0; i < 10; i++) {
-        const newItem = await fetchRandomItem();
-        setFetchedItems((prev: Item[]) => [...prev, newItem]);
+        const newThing = await fetchRandomThing();
+        setFetchedThings((prev: Thing[]) => [...prev, newThing]);
       }
     };
-    addRandomItems();
+    addRandomThings();
   }, []);
 
-  return fetchedItems;
+  return fetchedThings;
 }
 
+const initialThings = [
+  { name: "headphones", weight: 523, color: "gray" },
+  { name: "lamp", weight: 1092, color: "blue" },
+  { name: "bed", weight: 102390, color: "green" },
+];
+
 const App = () => {
-  const [items, setItems] = useState<Item[]>([
-    { name: "headphones", weight: 523, color: "gray" },
-    { name: "lamp", weight: 1092, color: "blue" },
-    { name: "bed", weight: 102390, color: "green" },
-  ]);
-  const fetchedItems = useFetchItems();
+  useEffect(() => {
+    console.log("hey");
+  }, []);
+  const [things, setThings] = useState<Thing[]>(initialThings);
+  const fetchedThings = useFetchThings();
 
   return (
     <>
@@ -117,13 +114,17 @@ const App = () => {
           </tr>
         </thead>
         <tbody>
-          {[...items, ...fetchedItems].map((item, index) => (
-            <TableRow key={index} item={item} />
+          {[...things, ...fetchedThings].map((thing, index) => (
+            <TR key={index} thingColor={thing.color}>
+              <td>{thing.name}</td>
+              <td>{thing.weight}</td>
+              <td>{thing.color}</td>
+            </TR>
           ))}
         </tbody>
       </table>
-      <AddItemForm
-        onAdd={(item: Item) => setItems((prev) => [...prev, item])}
+      <AddThingForm
+        onAdd={(thing: Thing) => setThings((prev) => [...prev, thing])}
       />
     </>
   );
